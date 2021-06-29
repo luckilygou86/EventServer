@@ -39,7 +39,9 @@ inline raii_event_base obtain_event_base()
     struct event_base *base;
     struct event_config *cfg;
     cfg = event_config_new();
+    //设置配置的类型，边缘触发
     event_config_require_features(cfg, 0);
+    //生成对应的event_base
     base = event_base_new_with_config(cfg);
     event_config_free(cfg);
     if (!base)

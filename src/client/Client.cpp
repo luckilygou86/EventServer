@@ -20,13 +20,14 @@
 
 #include "events.h"
 #include "wrapper.h"
+#include "glog_init.h"
 
 #include <iostream>
 
 using namespace std;
 
 #define BUF_SIZE 1024
-#define LOG(X) std::cout << "Client: " << X << std::endl
+//#define LOG(X) std::cout << "Client: " << X << std::endl
 bool isStop = false;
 std::map<evutil_socket_t, raii_event> cMap;
 std::map<evutil_socket_t, raii_event> cMap1;
@@ -34,7 +35,7 @@ static void onSignal(evutil_socket_t sig, short events, void *ctx)
 {
 	if (!ctx)
 		return;
-	LOG(__func__);
+	//LOG(__func__);
 	struct event *sig_event = (struct event *)ctx;
 	event_base_loopexit(event_get_base(sig_event), nullptr);
 	isStop = true;
@@ -88,16 +89,33 @@ static void onTerminal(evutil_socket_t fd, short events, void *ctx)
 #define MAX_CONNECT_CNT (5000)
 int main(int argc, char *argv[])
 {
-	   if (argc < 3)
-		{
-			printf("Usage:ip port,example:127.0.0.1 8080 \n");
-			return -1;
-		}
-		int port     = atoi(argv[2]);
-		char *ip_str = argv[1];
-		
 
+	if (argc < 5)
+	{
+		printf("Usage:ip port,example:127.0.0.1 8080 -l log_path\n");
+		return -1;
+	}
+	int port = atoi(argv[2]);
+	char *ip_str = argv[1];
 
+	int flags_v = 0;
+	bool alsoerr = false;
+	bool err = false;
+	if(argc >5 && argc <8)
+	{
+		printf("Usage: executable 127.0.0.1 port -l log_path flags_v alsoerr err\n");
+		return 0;
+	}
+	else if(argc >= 8)
+	{
+		flags_v = atoi(argv[5]);
+		alsoerr = argv[6];
+		err = argv[7];
+	}
+	log_info_init(argv[0], argv[4], flags_v, alsoerr, err);
+
+	LOG(INFO) << "EventCient";
+	//锁机制
 	evthread_use_pthreads();
 	auto raii_base = obtain_event_base();
 	auto raii_signal_event = obtain_event(raii_base.get(), -1, 0, nullptr, nullptr);
@@ -111,6 +129,7 @@ int main(int argc, char *argv[])
 	}
 
 	auto raii_terminal_event = obtain_event(raii_base.get(), -1, 0, nullptr, nullptr);
+	//STDIN_FILENO就是标准输入设备（一般是键盘）的文件描述符
 	event_assign(raii_terminal_event.get(), raii_base.get(), STDIN_FILENO, EV_READ | EV_PERSIST,
 				 onTerminal, nullptr);
 	if (!raii_terminal_event.get() || event_add(raii_terminal_event.get(), nullptr) < 0)
@@ -121,7 +140,8 @@ int main(int argc, char *argv[])
 
 	auto func = [&raii_base,&ip_str,&port](int idx) 
 	{
-		for (int i = 0; i < MAX_CONNECT_CNT;)
+		LOG(INFO) << "func";
+		for (int i = 0; i < 1;)
 		{
 			//int port = 9950;
 			struct sockaddr_in my_address;
@@ -196,6 +216,8 @@ int main(int argc, char *argv[])
 			}
 		}
 	};
+	LOG(INFO) << "thread";
+
 	std::thread cont_thread([&func]() {
 		func(0);
 	});

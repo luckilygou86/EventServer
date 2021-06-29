@@ -26,6 +26,7 @@
 #include "events.h"
 #include "Handler.h"
 #include "Message.h"
+#include "glog_init.h"
 
 using namespace std;
 
@@ -59,11 +60,28 @@ void sigHandler(int sig)
 int main(int argc, char **argv)
 {
 
-	if (argc < 2)
+	if (argc < 4)
 	{
-		printf("Usage:port,example:8080 \n");
+		printf("Usage: executable port -l log_path\n");
 		return -1;
 	}
+	//log信息初始化
+	int flags_v = 0;
+	bool alsoerr = false;
+	bool err = false;
+	if(argc >4 && argc <7)
+	{
+		printf("Usage: executable port -l log_path flags_v alsoerr err\n");
+		return 0;
+	}
+	else if(argc >= 7)
+	{
+		flags_v = atoi(argv[4]);
+		alsoerr = argv[5];
+		err = argv[6];
+	}
+	log_info_init(argv[0], argv[3], flags_v, alsoerr, err);
+
 	int port = atoi(argv[1]);
 	std::signal(SIGINT, sigHandler);
 	std::signal(SIGPIPE, sigHandler);
@@ -75,9 +93,9 @@ int main(int argc, char **argv)
 	});
 	pacceptor->init(port);
 
-	cout << "EventServer startup" << endl;
+	LOG(INFO) << "EventServer startup";
 	pacceptor->wait();
-	cout << "main thread exit" << endl;
+	LOG(INFO) << "main thread exit";
 	delete pacceptor;
 	pacceptor = nullptr;
 	std::this_thread::sleep_for(std::chrono::seconds(2));

@@ -16,11 +16,13 @@
 #include "events.h"
 #include "wrapper.h"
 #include "acceptor.h"
+#include "glog_init.h"
 
 using namespace std;
 
 #define BUF_SIZE 1024
 
+//atomic原子数据类型
 static std::atomic<bool> isStop(false);
 
 acceptor::acceptor(std::function<void()> &&f) : holder(nullptr), breakCb(f)
@@ -44,10 +46,12 @@ int acceptor::init(int port)
 	holder = std::shared_ptr<socketholder>(socketholder::getInstance());
 	return 0;
 }
+//thread_local影响变量的存储周期,变量在线程开始的时候被生成，在线程结束的时候被销毁，并且每一个线程都拥有一个独立的变量实例
 thread_local int con_cnt = 0;
 thread_local std::chrono::system_clock::duration locald;
 void acceptor::connection_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *ctx)
 {
+	VLOG(1) << "connection_cb";
 	if (ctx == nullptr)
 		return;
 
@@ -59,6 +63,7 @@ void acceptor::connection_cb(struct evconnlistener *listener, evutil_socket_t fd
 
 	if (con_cnt > 20)
 	{
+		//chrono计时器
 		std::chrono::system_clock::duration d = std::chrono::system_clock::now().time_since_epoch();
 		std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(d);
 		std::chrono::milliseconds localmsec = std::chrono::duration_cast<std::chrono::milliseconds>(locald);
@@ -77,6 +82,7 @@ void acceptor::connection_cb(struct evconnlistener *listener, evutil_socket_t fd
 		close(fd);
 		return;
 	}
+	//非阻塞
 	evutil_make_socket_nonblocking(fd);
 	accp->holder->onConnect(fd);
 }
