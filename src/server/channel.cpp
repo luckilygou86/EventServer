@@ -1,5 +1,6 @@
 #include "channel.h"
 #include "socketholder.h"
+#include "glog_init.h"
 channel::channel(std::weak_ptr<socketholder> &&h, evutil_socket_t _fd) : fd(_fd), holder(h), stop(false), isClose(false)
 {
     state.store(INIT);
@@ -26,6 +27,7 @@ void channel::listenWatcher(raii_event &&events)
 
 int32_t channel::send(char *buffer, size_t l)
 {
+    VLOG(1) << "send:" << buffer;
     std::unique_lock<std::mutex> lock(cMutex);
     if (stop == true)
     {
@@ -41,6 +43,7 @@ thread_local int cnt = 0;
 thread_local std::chrono::system_clock::duration locald_r;
 void channel::onChannelRead(short events, void *ctx)
 {
+    VLOG(1) << "onChannelRead";
     std::shared_ptr<socketholder> hld = holder.lock();
     if (hld == nullptr)
     {
@@ -101,6 +104,7 @@ void channel::onChannelRead(short events, void *ctx)
 
 void channel::onChannelWrite(short events, void *ctx)
 {
+    VLOG(1) << "onChannelWrite";
     std::shared_ptr<socketholder> hld = holder.lock();
     if (hld == nullptr)
     {
@@ -129,6 +133,7 @@ void channel::onChannelWrite(short events, void *ctx)
 void channel::onChannelTimeout(short events, void *ctx)
 {
     // cout << "onChannelTimeout :" << fd <<endl;
+    VLOG(1) << "onChannelTimeout fd:" << fd;
     uint64_t left = heartBrakeLeft();
     if (left < 0 || stop == true)
     {
@@ -193,6 +198,7 @@ void channel::closeSafty()
 
 void channel::handleEvent(short events)
 {
+    VLOG(1) << "handleEvent" << hex << events;
     {
         std::unique_lock<std::mutex> lock(cMutex);
         if (CLOSE == state)

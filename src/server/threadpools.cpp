@@ -1,3 +1,11 @@
+/*
+ * @Description: 
+ * @version: 
+ * @Author: sql
+ * @Date: 2021-06-28 18:18:15
+ * @LastEditors: sql
+ * @LastEditTime: 2021-07-01 16:20:08
+ */
 
 #include <vector>
 #include <queue>
@@ -10,10 +18,12 @@
 #include <stdexcept>
 
 #include "threadpools.h"
+#include "glog_init.h"
 
 // the constructor just launches some amount of workers
 threadpools::threadpools(size_t threads) : size(threads), stop(false)
 {
+    VLOG(1) << "threadpools";
     for (size_t i = 0; i < threads; ++i)
     {
         queue_mutex.emplace_back(new std::mutex());

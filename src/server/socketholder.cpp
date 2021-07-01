@@ -2,6 +2,7 @@
 #include <memory.h>
 #include <array>
 #include "socketholder.h"
+#include "glog_init.h"
 
 using namespace std;
 
@@ -26,6 +27,7 @@ socketholder::~socketholder()
 
 void socketholder::onConnect(evutil_socket_t fd)
 {
+    VLOG(1) << "onConnect ,fd :" << fd;
     if (isStop)
     {
         cout << " socketholder is stop" << endl;
@@ -46,7 +48,7 @@ void socketholder::onConnect(evutil_socket_t fd)
 
 void socketholder::onDisconnect(evutil_socket_t fd)
 {
-    // cout << "socketholder close fd: " << fd << " for reson: " << strerror(errno) << endl;
+     cout << "socketholder close fd: " << fd << " for reson: " << strerror(errno) << endl;
     auto id = fd % READ_LOOP_MAX;
     std::unique_lock<std::mutex> lock(syncMutex[id]);
     chns[id].erase(fd); // erase before close ,because system will create the same fd,and insert chns[i].
@@ -107,6 +109,7 @@ std::shared_ptr<channel> socketholder::getChannel(evutil_socket_t fd)
 
 void onEvent(evutil_socket_t socket_fd, short events, void *ctx)
 {
+    VLOG(1) << "onEvent";
     auto sptr = socketholder::getShared_ptr();
     if (sptr == nullptr || ctx == nullptr)
     {
@@ -124,7 +127,7 @@ void onEvent(evutil_socket_t socket_fd, short events, void *ctx)
         sptr->pools.enqueue([chan, events]() {
             chan->handleEvent(events);
         },
-                            socket_fd % sptr->pools.getSize());
+        socket_fd % sptr->pools.getSize());
     }
     catch (const std::bad_weak_ptr &e)
     {

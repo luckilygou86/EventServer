@@ -1,5 +1,14 @@
+/*
+ * @Description: 
+ * @version: 
+ * @Author: sql
+ * @Date: 2021-06-28 18:18:15
+ * @LastEditors: sql
+ * @LastEditTime: 2021-07-01 15:02:46
+ */
 #include <unistd.h>
 #include "buffer.h"
+#include "glog/logging.h"
 
 /*
  * 1.threadpools read into input buffer
@@ -22,6 +31,7 @@ ssize_t buffer::readsocket(evutil_socket_t fd)
             rSize += rc;
             append(buffer, rc);
         }
+        LOG(INFO) << "process id:" << pthread_self() << ",read:" << buffer;
     } while ((rc == -1 && errno == EINTR) || rc > 0);
     
     if(errno == EAGAIN){
@@ -49,6 +59,7 @@ ssize_t buffer::writesocket(evutil_socket_t fd)
     }
     do
     {
+        LOG(INFO) << "process id:" << pthread_self() << ",write:" << readbegin();
         wSize = write(fd, (void *)readbegin(), size());
         if (wSize > 0)
         {
