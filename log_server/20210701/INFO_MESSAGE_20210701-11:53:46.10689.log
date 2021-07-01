@@ -1,0 +1,6 @@
+Log file created at: 2021/07/01 11:53:46
+Running on machine: sql-All-Series
+Running duration (h:mm:ss): 0:00:00
+Log line format: [IWEF]yyyymmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I20210701 11:53:46.153791 10689 EventServer.cpp:96] EventServer startup
+I20210701 11:53:49.614056 10689 EventServer.cpp:98] main thread exit

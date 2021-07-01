@@ -1,8 +1,0 @@
-Log file created at: 2021/06/29 16:35:07
-Running on machine: sql-All-Series
-Running duration (h:mm:ss): 0:00:00
-Log line format: [IWEF]yyyymmdd hh:mm:ss.uuuuuu threadid file:line] msg
-I20210629 16:35:07.627772 30023 Client.cpp:117] EventCient
-I20210629 16:35:07.628412 30023 Client.cpp:219] thread
-I20210629 16:35:07.628489 30024 Client.cpp:143] func
-I20210629 16:35:07.628510 30025 Client.cpp:143] func
