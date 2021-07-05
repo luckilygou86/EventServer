@@ -16,8 +16,7 @@
 #include "events.h"
 #include "wrapper.h"
 #include "acceptor.h"
-#include "glog_init.h"
-
+#include "glog/logging.h"
 using namespace std;
 
 #define BUF_SIZE 1024
@@ -108,6 +107,7 @@ void acceptor::stop()
 
 void acceptor::wait()
 {
+	VLOG(1) << "acceptor::wait";
 	for (int i = 0; i < LISTEN_CNT; i++)
 	{
 		threads[i] = std::thread([this, i]() {

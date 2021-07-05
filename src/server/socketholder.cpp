@@ -2,7 +2,7 @@
 #include <memory.h>
 #include <array>
 #include "socketholder.h"
-#include "glog_init.h"
+#include "glog/logging.h"
 
 using namespace std;
 
@@ -10,6 +10,7 @@ void onEvent(evutil_socket_t socket_fd, short events, void *ctx);
 socketholder *socketholder::instance = nullptr;
 socketholder::socketholder() : isStop(false), pools(READ_LOOP_MAX * 2)
 {
+    VLOG(1) << "socketholder构造函数";
     for (int i = 0; i < READ_LOOP_MAX; i++)
     {
         rwatchers[i] = obtain_event_base();
@@ -123,7 +124,7 @@ void onEvent(evutil_socket_t socket_fd, short events, void *ctx)
         {
             chan->closeSafty();
         }
-
+        //把当前的任务放到线程池中
         sptr->pools.enqueue([chan, events]() {
             chan->handleEvent(events);
         },

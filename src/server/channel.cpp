@@ -1,6 +1,6 @@
 #include "channel.h"
 #include "socketholder.h"
-#include "glog_init.h"
+#include "glog/logging.h"
 channel::channel(std::weak_ptr<socketholder> &&h, evutil_socket_t _fd) : fd(_fd), holder(h), stop(false), isClose(false)
 {
     state.store(INIT);
