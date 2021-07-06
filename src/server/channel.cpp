@@ -104,7 +104,7 @@ void channel::onChannelRead(short events, void *ctx)
 
 void channel::onChannelWrite(short events, void *ctx)
 {
-    VLOG(1) << "onChannelWrite";
+    VLOG(1) << "onChannelWrite, wBuf size:" << wBuf.size();
     std::shared_ptr<socketholder> hld = holder.lock();
     if (hld == nullptr)
     {
@@ -133,7 +133,7 @@ void channel::onChannelWrite(short events, void *ctx)
 void channel::onChannelTimeout(short events, void *ctx)
 {
     // cout << "onChannelTimeout :" << fd <<endl;
-    VLOG(1) << "onChannelTimeout fd:" << fd;
+    VLOG(1) << "onChannelTimeout";
     uint64_t left = heartBrakeLeft();
     if (left < 0 || stop == true)
     {
@@ -155,7 +155,7 @@ void channel::onChannelTimeout(short events, void *ctx)
     }
     if (stop && wBuf.size() == 0 && state == INIT)
     {
-        shutdown(fd, SHUT_WR);
+        shutdown(fd, SHUT_WR);//断开输出流
         state = SHUTDOWN;
         return;
     }

@@ -66,6 +66,7 @@ static void onRead(evutil_socket_t socket_fd, short events, void *ctx)
 		close(socket_fd);
 		return;
 	}
+	VLOG(1) << "read buffer:" << buffer;
 	// LOG(size);
 }
 

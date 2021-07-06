@@ -4,7 +4,7 @@
  * @Author: sql
  * @Date: 2021-06-28 18:18:15
  * @LastEditors: sql
- * @LastEditTime: 2021-07-01 15:02:46
+ * @LastEditTime: 2021-07-06 10:02:34
  */
 #include <unistd.h>
 #include "buffer.h"
@@ -17,6 +17,7 @@
  */
 ssize_t buffer::readsocket(evutil_socket_t fd)
 {
+    VLOG(1) << "buffer:readsocket";
     ssize_t rSize = 0;
     ssize_t rc = 0;
 
@@ -49,7 +50,7 @@ ssize_t buffer::readsocket(evutil_socket_t fd)
  */
 ssize_t buffer::writesocket(evutil_socket_t fd)
 {
-
+    VLOG(1) << "buffer::writesocket";
     ssize_t wSize = 0;
     ssize_t rc = 0;
 
